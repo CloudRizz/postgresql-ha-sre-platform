@@ -1,0 +1,9 @@
+# Example project and environment configuration.
+project_name = "postgresql-ha-sre"
+environment  = "prod"
+
+# Example AWS deployment region.
+aws_region = "eu-west-2"
+
+# Example network address range allocated to the VPC.
+vpc_cidr = "10.20.0.0/16"
