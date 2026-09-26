@@ -25,3 +25,33 @@ variable "vpc_cidr" {
   type        = string
   default     = "10.20.0.0/16"
 }
+
+# Defines the availability zones used by the production environment.
+variable "availability_zones" {
+  description = "Availability zones used by the production environment"
+  type        = list(string)
+  default = [
+    "eu-west-2a",
+    "eu-west-2b"
+  ]
+}
+
+# Defines the public subnet address ranges used by the production environment.
+variable "public_subnet_cidrs" {
+  description = "CIDR blocks allocated to public subnets"
+  type        = list(string)
+  default = [
+    "10.20.1.0/24",
+    "10.20.2.0/24"
+  ]
+}
+
+# Defines the private database subnet address ranges used by the production environment.
+variable "private_subnet_cidrs" {
+  description = "CIDR blocks allocated to private database subnets"
+  type        = list(string)
+  default = [
+    "10.20.11.0/24",
+    "10.20.12.0/24"
+  ]
+}
