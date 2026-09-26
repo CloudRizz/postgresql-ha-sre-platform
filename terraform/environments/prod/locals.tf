@@ -4,9 +4,9 @@ locals {
 
   # Defines common metadata automatically applied to AWS resources
   common_tags = {
-    Project = var.project_name
+    Project     = var.project_name
     Environment = var.environment
-    ManagedBy = "Terraform"
-    Repository = "postgresql-ha-sre-platform"
+    ManagedBy   = "Terraform"
+    Repository  = "postgresql-ha-sre-platform"
   }
 }

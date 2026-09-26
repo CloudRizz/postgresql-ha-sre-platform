@@ -1,0 +1,5 @@
+# Defines the AWS region containing the Terraform state infrastructure.
+aws_region = "eu-west-2"
+
+# Defines the project name used when naming Terraform state resources.
+project_name = "postgresql-ha-sre"
