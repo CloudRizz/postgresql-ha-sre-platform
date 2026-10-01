@@ -17,3 +17,9 @@ module "security" {
   vpc_id      = module.networking.vpc_id
 }
 
+# Creates the IAM and Systems Manager access used by PostgreSQL compute nodes.
+module "compute" {
+  source = "../../modules/compute"
+
+  name_prefix = local.name_prefix
+}
