@@ -10,4 +10,3 @@ locals {
     az => var.private_subnet_cidrs[index]
   }
 }
-
