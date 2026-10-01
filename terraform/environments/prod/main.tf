@@ -9,3 +9,11 @@ module "networking" {
   private_subnet_cidrs = var.private_subnet_cidrs
 }
 
+# Deploys network security controls for the PostgreSQL HA platform.
+module "security" {
+  source = "../../modules/security"
+
+  name_prefix = local.name_prefix
+  vpc_id      = module.networking.vpc_id
+}
+
