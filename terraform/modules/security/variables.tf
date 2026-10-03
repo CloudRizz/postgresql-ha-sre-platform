@@ -9,3 +9,9 @@ variable "vpc_id" {
   description = "ID of the VPC containing the PostgreSQL platform"
   type        = string
 }
+
+# Defines the VPC CIDR used to restrict NLB outbound traffic.
+variable "vpc_cidr" {
+  description = "CIDR block of the VPC"
+  type        = string
+}

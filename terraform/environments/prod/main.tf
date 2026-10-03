@@ -15,6 +15,7 @@ module "security" {
 
   name_prefix = local.name_prefix
   vpc_id      = module.networking.vpc_id
+  vpc_cidr    = var.vpc_cidr
 }
 
 # Deploys the private EC2 nodes used by the PostgreSQL HA cluster.
@@ -26,4 +27,15 @@ module "compute" {
   availability_zones = var.availability_zones
   private_subnet_ids = module.networking.private_subnet_ids
   security_group_id  = module.security.postgres_security_group_id
+}
+
+# Deploys the internal Network Load Balancer providing the stable PostgreSQL endpoint.
+module "load_balancing" {
+  source = "../../modules/load_balancing"
+
+  name_prefix        = local.name_prefix
+  vpc_id             = module.networking.vpc_id
+  private_subnet_ids = module.networking.private_subnet_ids
+  instance_ids       = module.compute.instance_ids
+  security_group_id  = module.security.nlb_security_group_id
 }
