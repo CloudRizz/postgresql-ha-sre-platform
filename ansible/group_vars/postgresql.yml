@@ -1,0 +1,6 @@
+---
+# Reads temporary PostgreSQL credentials from the local runtime environment.
+patroni_superuser_password: "{{ lookup('ansible.builtin.env', 'PATRONI_SUPERUSER_PASSWORD') }}"
+
+# Reads the replication credential from the local runtime environment.
+patroni_replication_password: "{{ lookup('ansible.builtin.env', 'PATRONI_REPLICATION_PASSWORD') }}"
