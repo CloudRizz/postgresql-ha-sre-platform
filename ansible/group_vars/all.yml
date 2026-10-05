@@ -9,3 +9,9 @@ postgresql_version: "17"
 
 # Defines the PostgreSQL service port used by clients and replication traffic.
 postgresql_port: 5432
+
+# Defines the etcd version and ports used by the distributed configuration store.
+etcd_version: "3.6.15"
+etcd_client_port: 2379
+etcd_peer_port: 2380
+etcd_data_dir: /var/lib/etcd

@@ -1,0 +1,72 @@
+---
+# Creates the system account used to run the etcd service.
+- name: Create etcd system user
+  ansible.builtin.user:
+    name: etcd
+    system: true
+    shell: /usr/sbin/nologin
+    home: "{{ etcd_data_dir }}"
+    create_home: false
+
+# Creates the directory used to store etcd cluster data.
+- name: Create etcd data directory
+  ansible.builtin.file:
+    path: "{{ etcd_data_dir }}"
+    state: directory
+    owner: etcd
+    group: etcd
+    mode: "0700"
+
+# Downloads the selected etcd release archive.
+- name: Download etcd release
+  ansible.builtin.get_url:
+    url: "https://github.com/etcd-io/etcd/releases/download/v{{ etcd_version }}/etcd-v{{ etcd_version }}-linux-amd64.tar.gz"
+    dest: "/tmp/etcd-v{{ etcd_version }}-linux-amd64.tar.gz"
+    mode: "0644"
+
+# Extracts the etcd release archive.
+- name: Extract etcd release
+  ansible.builtin.unarchive:
+    src: "/tmp/etcd-v{{ etcd_version }}-linux-amd64.tar.gz"
+    dest: /tmp
+    remote_src: true
+    creates: "/tmp/etcd-v{{ etcd_version }}-linux-amd64/etcd"
+
+# Installs the etcd server binary.
+- name: Install etcd binary
+  ansible.builtin.copy:
+    src: "/tmp/etcd-v{{ etcd_version }}-linux-amd64/etcd"
+    dest: /usr/local/bin/etcd
+    owner: root
+    group: root
+    mode: "0755"
+    remote_src: true
+  notify: Restart etcd
+
+# Installs the etcd command-line client.
+- name: Install etcdctl binary
+  ansible.builtin.copy:
+    src: "/tmp/etcd-v{{ etcd_version }}-linux-amd64/etcdctl"
+    dest: /usr/local/bin/etcdctl
+    owner: root
+    group: root
+    mode: "0755"
+    remote_src: true
+
+# Installs the systemd service definition for the etcd member.
+- name: Configure etcd systemd service
+  ansible.builtin.template:
+    src: etcd.service.j2
+    dest: /etc/systemd/system/etcd.service
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Restart etcd
+
+# Enables and starts the etcd service.
+- name: Enable and start etcd
+  ansible.builtin.systemd_service:
+    name: etcd
+    enabled: true
+    state: started
+    daemon_reload: true

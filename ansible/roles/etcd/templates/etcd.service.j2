@@ -1,0 +1,28 @@
+[Unit]
+Description=etcd distributed key-value store
+Documentation=https://etcd.io/docs/
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=notify
+User=etcd
+Group=etcd
+
+ExecStart=/usr/local/bin/etcd \
+  --name {{ inventory_hostname }} \
+  --data-dir {{ etcd_data_dir }} \
+  --listen-peer-urls http://{{ private_ip_address }}:{{ etcd_peer_port }} \
+  --initial-advertise-peer-urls http://{{ private_ip_address }}:{{ etcd_peer_port }} \
+  --listen-client-urls http://{{ private_ip_address }}:{{ etcd_client_port }},http://127.0.0.1:{{ etcd_client_port }} \
+  --advertise-client-urls http://{{ private_ip_address }}:{{ etcd_client_port }} \
+  --initial-cluster {% for host in groups['etcd'] %}{{ host }}=http://{{ hostvars[host].private_ip_address }}:{{ etcd_peer_port }}{% if not loop.last %},{% endif %}{% endfor %} \
+  --initial-cluster-state new \
+  --initial-cluster-token {{ project_name }}-{{ deployment_environment }}
+
+Restart=on-failure
+RestartSec=5
+LimitNOFILE=40000
+
+[Install]
+WantedBy=multi-user.target

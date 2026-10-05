@@ -15,6 +15,10 @@ filters:
 hostnames:
   - tag:Name
 
+# Uses each EC2 instance private IP address for Ansible connectivity.
+compose:
+  ansible_host: private_ip_address
+
 # Creates functional Ansible groups from the EC2 instance tags.
 groups:
   postgresql: ec2_tags.Role == 'PostgreSQL'
