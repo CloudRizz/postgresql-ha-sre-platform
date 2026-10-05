@@ -63,6 +63,7 @@ resource "aws_instance" "postgres" {
   tags = {
     Name = "${var.name_prefix}-${each.key}"
     Role = "PostgreSQL"
+    Etcd = "true"
   }
 }
 
@@ -92,5 +93,6 @@ resource "aws_instance" "etcd" {
   tags = {
     Name = "${var.name_prefix}-etcd-03"
     Role = "Etcd"
+    Etcd = "true"
   }
 }

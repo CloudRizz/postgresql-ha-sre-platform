@@ -1,9 +1,24 @@
 ---
-# Configures the PostgreSQL HA cluster across the dynamically discovered EC2 nodes.
-- name: Configure PostgreSQL HA cluster
+# Applies baseline operating system configuration to every cluster node.
+- name: Configure cluster nodes
   hosts: aws_ec2
   become: true
 
   roles:
     - common
+
+# Installs PostgreSQL only on database nodes.
+- name: Configure PostgreSQL nodes
+  hosts: postgresql
+  become: true
+
+  roles:
     - postgresql
+
+# Configures etcd on all three quorum members.
+- name: Configure etcd cluster
+  hosts: etcd
+  become: true
+
+  roles:
+    - etcd

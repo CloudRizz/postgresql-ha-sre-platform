@@ -1,17 +1,21 @@
 ---
-# Discovers the PostgreSQL EC2 instances dynamically from AWS.
+# Discovers running EC2 instances belonging to the PostgreSQL HA environment.
 plugin: amazon.aws.aws_ec2
 
 regions:
   - eu-west-2
 
-# Only discovers running PostgreSQL instances belonging to this environment.
+# Discovers all running cluster nodes belonging to this environment.
 filters:
   instance-state-name: running
   tag:Project: postgresql-ha-sre
   tag:Environment: prod
-  tag:Role: PostgreSQL
 
 # Uses the EC2 Name tag as the Ansible inventory hostname.
 hostnames:
   - tag:Name
+
+# Creates functional Ansible groups from the EC2 instance tags.
+groups:
+  postgresql: ec2_tags.Role == 'PostgreSQL'
+  etcd: ec2_tags.Etcd == 'true'
