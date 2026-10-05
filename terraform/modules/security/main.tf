@@ -80,3 +80,95 @@ resource "aws_vpc_security_group_ingress_rule" "patroni_from_nlb" {
   ip_protocol                  = "tcp"
   description                  = "Allow Patroni health checks from the NLB"
 }
+
+# Creates the security group protecting the dedicated etcd quorum node.
+resource "aws_security_group" "etcd" {
+  name        = "${var.name_prefix}-etcd-sg"
+  description = "Controls network access to the dedicated etcd quorum node"
+  vpc_id      = var.vpc_id
+
+  tags = {
+    Name = "${var.name_prefix}-etcd-sg"
+  }
+}
+
+# Allows etcd client traffic from PostgreSQL HA nodes to the dedicated etcd node.
+resource "aws_vpc_security_group_ingress_rule" "etcd_client_from_postgres" {
+  security_group_id            = aws_security_group.etcd.id
+  referenced_security_group_id = aws_security_group.postgres.id
+
+  from_port   = 2379
+  to_port     = 2379
+  ip_protocol = "tcp"
+
+  description = "Allow etcd client traffic from PostgreSQL HA nodes"
+}
+
+# Allows etcd peer traffic from PostgreSQL HA nodes to the dedicated etcd node.
+resource "aws_vpc_security_group_ingress_rule" "etcd_peer_from_postgres" {
+  security_group_id            = aws_security_group.etcd.id
+  referenced_security_group_id = aws_security_group.postgres.id
+
+  from_port   = 2380
+  to_port     = 2380
+  ip_protocol = "tcp"
+
+  description = "Allow etcd peer traffic from PostgreSQL HA nodes"
+}
+
+# Allows the dedicated etcd node to reach etcd client endpoints on PostgreSQL HA nodes.
+resource "aws_vpc_security_group_ingress_rule" "postgres_etcd_client_from_etcd" {
+  security_group_id            = aws_security_group.postgres.id
+  referenced_security_group_id = aws_security_group.etcd.id
+
+  from_port   = 2379
+  to_port     = 2379
+  ip_protocol = "tcp"
+
+  description = "Allow etcd client traffic from the dedicated etcd node"
+}
+
+# Allows the dedicated etcd node to reach etcd peer endpoints on PostgreSQL HA nodes.
+resource "aws_vpc_security_group_ingress_rule" "postgres_etcd_peer_from_etcd" {
+  security_group_id            = aws_security_group.postgres.id
+  referenced_security_group_id = aws_security_group.etcd.id
+
+  from_port   = 2380
+  to_port     = 2380
+  ip_protocol = "tcp"
+
+  description = "Allow etcd peer traffic from the dedicated etcd node"
+}
+
+# Allows etcd client traffic between PostgreSQL HA nodes.
+resource "aws_vpc_security_group_ingress_rule" "postgres_etcd_client_internal" {
+  security_group_id            = aws_security_group.postgres.id
+  referenced_security_group_id = aws_security_group.postgres.id
+
+  from_port   = 2379
+  to_port     = 2379
+  ip_protocol = "tcp"
+
+  description = "Allow etcd client traffic between PostgreSQL HA nodes"
+}
+
+# Allows etcd peer traffic between PostgreSQL HA nodes.
+resource "aws_vpc_security_group_ingress_rule" "postgres_etcd_peer_internal" {
+  security_group_id            = aws_security_group.postgres.id
+  referenced_security_group_id = aws_security_group.postgres.id
+
+  from_port   = 2380
+  to_port     = 2380
+  ip_protocol = "tcp"
+
+  description = "Allow etcd peer traffic between PostgreSQL HA nodes"
+}
+
+# Allows the dedicated etcd node to initiate outbound connections when routing permits.
+resource "aws_vpc_security_group_egress_rule" "etcd_outbound" {
+  security_group_id = aws_security_group.etcd.id
+  cidr_ipv4         = "0.0.0.0/0"
+  ip_protocol       = "-1"
+
+  description = "Allow outbound traffic from the dedicated etcd node"
+}

@@ -27,3 +27,15 @@ variable "availability_zones" {
   description = "Availability zones used by PostgreSQL nodes"
   type        = list(string)
 }
+
+# Defines the EC2 instance type used by the dedicated etcd quorum node.
+variable "etcd_instance_type" {
+  description = "EC2 instance type used by the dedicated etcd quorum node"
+  type        = string
+}
+
+# Defines the security group attached to the dedicated etcd quorum node.
+variable "etcd_security_group_id" {
+  description = "Security group ID attached to the dedicated etcd quorum node"
+  type        = string
+}

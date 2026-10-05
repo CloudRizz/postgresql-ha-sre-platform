@@ -22,11 +22,13 @@ module "security" {
 module "compute" {
   source = "../../modules/compute"
 
-  name_prefix        = local.name_prefix
-  instance_type      = "t8i.small"
-  availability_zones = var.availability_zones
-  private_subnet_ids = module.networking.private_subnet_ids
-  security_group_id  = module.security.postgres_security_group_id
+  name_prefix            = local.name_prefix
+  instance_type          = "t8i.small"
+  etcd_instance_type     = "t8i.small"
+  availability_zones     = var.availability_zones
+  private_subnet_ids     = module.networking.private_subnet_ids
+  security_group_id      = module.security.postgres_security_group_id
+  etcd_security_group_id = module.security.etcd_security_group_id
 }
 
 # Deploys the internal Network Load Balancer providing the stable PostgreSQL endpoint.

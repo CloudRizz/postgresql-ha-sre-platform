@@ -1,7 +1,7 @@
-# Outputs the instance profile name for use by PostgreSQL EC2 instances.
+# Outputs the instance profile name for use by cluster EC2 instances.
 output "instance_profile_name" {
-  description = "Name of the IAM instance profile used by PostgreSQL nodes"
-  value       = aws_iam_instance_profile.postgres.name
+  description = "Name of the IAM instance profile used by cluster nodes"
+  value       = aws_iam_instance_profile.node.name
 }
 
 # Outputs the EC2 instance IDs keyed by PostgreSQL node name.
@@ -20,4 +20,16 @@ output "private_ips" {
     for name, instance in aws_instance.postgres :
     name => instance.private_ip
   }
+}
+
+# Outputs the EC2 instance ID of the dedicated etcd quorum node.
+output "etcd_instance_id" {
+  description = "EC2 instance ID of the dedicated etcd quorum node"
+  value       = aws_instance.etcd.id
+}
+
+# Outputs the private IP address of the dedicated etcd quorum node.
+output "etcd_private_ip" {
+  description = "Private IP address of the dedicated etcd quorum node"
+  value       = aws_instance.etcd.private_ip
 }
