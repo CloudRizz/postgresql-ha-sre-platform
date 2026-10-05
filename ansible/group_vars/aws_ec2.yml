@@ -1,0 +1,9 @@
+---
+# Connects to private EC2 nodes through AWS Systems Manager instead of SSH.
+ansible_connection: amazon.aws.aws_ssm
+
+# Defines the AWS region used by the Systems Manager connection plugin.
+ansible_aws_ssm_region: eu-west-2
+
+# Reads the temporary S3 transfer bucket name from the local environment.
+ansible_aws_ssm_bucket_name: "{{ lookup('env', 'ANSIBLE_SSM_BUCKET_NAME') }}"
