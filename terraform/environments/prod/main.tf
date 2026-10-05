@@ -29,6 +29,7 @@ module "compute" {
   private_subnet_ids     = module.networking.private_subnet_ids
   security_group_id      = module.security.postgres_security_group_id
   etcd_security_group_id = module.security.etcd_security_group_id
+  ansible_ssm_bucket_arn = aws_s3_bucket.ansible_ssm.arn
 }
 
 # Deploys the internal Network Load Balancer providing the stable PostgreSQL endpoint.

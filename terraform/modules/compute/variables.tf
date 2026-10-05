@@ -39,3 +39,9 @@ variable "etcd_security_group_id" {
   description = "Security group ID attached to the dedicated etcd quorum node"
   type        = string
 }
+
+# Defines the S3 bucket ARN used for temporary Ansible SSM file transfers.
+variable "ansible_ssm_bucket_arn" {
+  description = "ARN of the S3 bucket used for Ansible SSM file transfers"
+  type        = string
+}

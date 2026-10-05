@@ -15,9 +15,9 @@ filters:
 hostnames:
   - tag:Name
 
-# Uses each EC2 instance private IP address for Ansible connectivity.
+# Uses each EC2 instance ID as the AWS SSM connection target.
 compose:
-  ansible_host: private_ip_address
+  ansible_host: instance_id
 
 # Creates functional Ansible groups from the EC2 instance tags.
 groups:

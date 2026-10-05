@@ -29,6 +29,30 @@ resource "aws_iam_role_policy_attachment" "ssm" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
 }
 
+# Defines the minimum S3 permissions required for Ansible SSM file transfers.
+data "aws_iam_policy_document" "ansible_ssm" {
+  statement {
+    effect = "Allow"
+
+    actions = [
+      "s3:GetObject",
+      "s3:PutObject",
+      "s3:DeleteObject",
+    ]
+
+    resources = [
+      "${var.ansible_ssm_bucket_arn}/*",
+    ]
+  }
+}
+
+# Grants cluster nodes access to temporary Ansible SSM transfer objects.
+resource "aws_iam_role_policy" "ansible_ssm" {
+  name   = "${var.name_prefix}-ansible-ssm"
+  role   = aws_iam_role.node.name
+  policy = data.aws_iam_policy_document.ansible_ssm.json
+}
+
 # Creates the instance profile used to attach the IAM role to cluster EC2 nodes.
 resource "aws_iam_instance_profile" "node" {
   name = "${var.name_prefix}-node-profile"
