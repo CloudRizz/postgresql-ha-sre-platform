@@ -1,0 +1,35 @@
+---
+# Installs packages required to configure the official PostgreSQL APT repository.
+- name: Install PostgreSQL repository prerequisites
+  ansible.builtin.apt:
+    name:
+      - postgresql-common
+      - ca-certificates
+      - curl
+    state: present
+    update_cache: true
+
+# Disables automatic PostgreSQL cluster creation so Patroni can initialise the HA cluster.
+- name: Disable automatic PostgreSQL cluster creation
+  ansible.builtin.copy:
+    dest: /etc/postgresql-common/createcluster.conf
+    content: |
+      create_main_cluster = false
+    owner: root
+    group: root
+    mode: "0644"
+
+# Adds the official PostgreSQL APT repository using the PostgreSQL repository helper.
+- name: Configure PostgreSQL APT repository
+  ansible.builtin.command:
+    cmd: /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh -y
+    creates: /etc/apt/sources.list.d/pgdg.list
+
+# Installs the selected PostgreSQL version and supporting client utilities.
+- name: Install PostgreSQL packages
+  ansible.builtin.apt:
+    name:
+      - "postgresql-{{ postgresql_version }}"
+      - "postgresql-client-{{ postgresql_version }}"
+    state: present
+    update_cache: true

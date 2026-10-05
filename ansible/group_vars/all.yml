@@ -3,3 +3,9 @@
 aws_region: eu-west-2
 project_name: postgresql-ha-sre
 deployment_environment: prod
+
+# Defines the PostgreSQL major version installed across the HA cluster.
+postgresql_version: "17"
+
+# Defines the PostgreSQL service port used by clients and replication traffic.
+postgresql_port: 5432
