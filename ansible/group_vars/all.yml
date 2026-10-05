@@ -1,0 +1,5 @@
+---
+# Defines shared configuration used across the PostgreSQL HA cluster.
+aws_region: eu-west-2
+project_name: postgresql-ha-sre
+deployment_environment: prod

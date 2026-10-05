@@ -1,0 +1,8 @@
+---
+# Configures the PostgreSQL HA cluster across the dynamically discovered EC2 nodes.
+- name: Configure PostgreSQL HA cluster
+  hosts: aws_ec2
+  become: true
+
+  roles:
+    - common

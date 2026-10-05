@@ -1,0 +1,22 @@
+---
+# Updates the APT package cache before installing system dependencies.
+- name: Update APT package cache
+  ansible.builtin.apt:
+    update_cache: true
+    cache_valid_time: 3600
+
+# Installs baseline packages required for administration and later HA components.
+- name: Install common system packages
+  ansible.builtin.apt:
+    name:
+      - curl
+      - ca-certificates
+      - gnupg
+      - jq
+      - unzip
+    state: present
+
+# Ensures the system timezone is UTC for consistent logs across all cluster nodes.
+- name: Configure system timezone
+  community.general.timezone:
+    name: UTC

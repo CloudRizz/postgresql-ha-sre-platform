@@ -1,0 +1,9 @@
+---
+# Provides AWS inventory and connection functionality.
+collections:
+  - name: amazon.aws
+    version: "11.4.0"
+
+  # Provides general system modules used by the Ansible roles.
+  - name: community.general
+    version: "13.4.0"
