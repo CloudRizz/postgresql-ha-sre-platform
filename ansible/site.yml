@@ -22,3 +22,11 @@
 
   roles:
     - etcd
+
+# Configures Patroni to manage PostgreSQL replication and automatic failover.
+- name: Configure Patroni
+  hosts: postgresql
+  become: true
+
+  roles:
+    - patroni

@@ -1,0 +1,88 @@
+---
+# Verifies that required PostgreSQL credentials were supplied securely at runtime.
+- name: Validate Patroni credentials
+  ansible.builtin.assert:
+    that:
+      - patroni_superuser_password is defined
+      - patroni_superuser_password | length > 0
+      - patroni_replication_password is defined
+      - patroni_replication_password | length > 0
+    fail_msg: "Patroni superuser and replication passwords must be supplied at runtime."
+  no_log: true
+
+# Installs operating system packages required by Patroni.
+- name: Install Patroni system dependencies
+  ansible.builtin.apt:
+    name:
+      - python3-venv
+      - python3-psycopg2
+    state: present
+    update_cache: true
+
+# Creates the directory containing the isolated Patroni Python environment.
+- name: Create Patroni installation directory
+  ansible.builtin.file:
+    path: /opt/patroni
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
+# Creates the Python virtual environment used exclusively by Patroni.
+- name: Create Patroni virtual environment
+  ansible.builtin.command:
+    cmd: python3 -m venv /opt/patroni/venv
+    creates: /opt/patroni/venv/bin/python
+
+# Installs Patroni with PostgreSQL and etcd support inside its virtual environment.
+- name: Install Patroni
+  ansible.builtin.pip:
+    name:
+      - "patroni[etcd3]=={{ patroni_version }}"
+      - psycopg2-binary
+    virtualenv: /opt/patroni/venv
+    state: present
+
+# Creates the directory used to store the Patroni configuration.
+- name: Create Patroni configuration directory
+  ansible.builtin.file:
+    path: /etc/patroni
+    state: directory
+    owner: postgres
+    group: postgres
+    mode: "0750"
+
+# Renders the Patroni configuration using the discovered cluster topology.
+- name: Configure Patroni
+  ansible.builtin.template:
+    src: patroni.yml.j2
+    dest: /etc/patroni/patroni.yml
+    owner: postgres
+    group: postgres
+    mode: "0600"
+  notify: Restart Patroni
+
+# Prevents the default PostgreSQL service from managing database instances independently of Patroni.
+- name: Disable default PostgreSQL service
+  ansible.builtin.systemd_service:
+    name: postgresql
+    enabled: false
+    state: stopped
+
+# Installs the systemd service used to run Patroni as the PostgreSQL service manager.
+- name: Configure Patroni systemd service
+  ansible.builtin.template:
+    src: patroni.service.j2
+    dest: /etc/systemd/system/patroni.service
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Restart Patroni
+
+# Enables and starts Patroni so it becomes the PostgreSQL service manager.
+- name: Enable and start Patroni
+  ansible.builtin.systemd_service:
+    name: patroni
+    enabled: true
+    state: started
+    daemon_reload: true

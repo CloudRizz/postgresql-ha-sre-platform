@@ -1,0 +1,67 @@
+# Identifies this PostgreSQL HA cluster and stores its state under the Patroni namespace.
+scope: {{ patroni_scope }}
+namespace: {{ patroni_namespace }}
+
+# Uses the Ansible inventory hostname as the unique Patroni member name.
+name: {{ inventory_hostname }}
+
+# Exposes the Patroni REST API for health checks and cluster administration.
+restapi:
+  listen: "{{ private_ip_address }}:{{ patroni_restapi_port }}"
+  connect_address: "{{ private_ip_address }}:{{ patroni_restapi_port }}"
+
+# Connects Patroni to all three members of the etcd v3 quorum.
+etcd3:
+  hosts:
+{% for host in groups['etcd'] %}
+    - "{{ hostvars[host].private_ip_address }}:{{ etcd_client_port }}"
+{% endfor %}
+
+# Defines the cluster-wide PostgreSQL settings written to the Patroni DCS during bootstrap.
+bootstrap:
+  dcs:
+    ttl: 30
+    loop_wait: 10
+    retry_timeout: 10
+    maximum_lag_on_failover: 1048576
+
+    postgresql:
+      use_pg_rewind: true
+      use_slots: true
+      parameters:
+        wal_level: replica
+        hot_standby: "on"
+        max_wal_senders: 10
+        max_replication_slots: 10
+        wal_keep_size: 256MB
+
+  # Initialises the first PostgreSQL primary using UTF-8 encoding and checksums.
+  initdb:
+    - encoding: UTF8
+    - data-checksums
+
+  # Defines client and replication authentication rules for the HA cluster.
+  pg_hba:
+    - "host replication replicator {{ vpc_cidr }} scram-sha-256"
+    - "host all all {{ vpc_cidr }} scram-sha-256"
+
+# Configures the PostgreSQL instance managed by Patroni on this node.
+postgresql:
+  listen: "{{ private_ip_address }}:{{ postgresql_port }}"
+  connect_address: "{{ private_ip_address }}:{{ postgresql_port }}"
+  data_dir: "{{ postgresql_data_dir }}"
+  bin_dir: "/usr/lib/postgresql/{{ postgresql_version }}/bin"
+
+  authentication:
+    replication:
+      username: replicator
+      password: "{{ patroni_replication_password }}"
+    superuser:
+      username: postgres
+      password: "{{ patroni_superuser_password }}"
+    rewind:
+      username: postgres
+      password: "{{ patroni_superuser_password }}"
+
+  parameters:
+    unix_socket_directories: "/var/run/postgresql"

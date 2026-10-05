@@ -4,6 +4,9 @@ aws_region: eu-west-2
 project_name: postgresql-ha-sre
 deployment_environment: prod
 
+# Defines the private VPC network permitted to access PostgreSQL.
+vpc_cidr: 10.20.0.0/16
+
 # Defines the PostgreSQL major version installed across the HA cluster.
 postgresql_version: "17"
 
@@ -15,3 +18,14 @@ etcd_version: "3.6.15"
 etcd_client_port: 2379
 etcd_peer_port: 2380
 etcd_data_dir: /var/lib/etcd
+
+# Defines the Patroni version installed consistently across PostgreSQL nodes.
+patroni_version: "4.1.0"
+
+# Defines the Patroni cluster identity and REST API used for HA management.
+patroni_scope: postgresql-ha
+patroni_namespace: /service/
+patroni_restapi_port: 8008
+
+# Defines the PostgreSQL data directory managed exclusively by Patroni.
+postgresql_data_dir: "/var/lib/postgresql/{{ postgresql_version }}/main"
