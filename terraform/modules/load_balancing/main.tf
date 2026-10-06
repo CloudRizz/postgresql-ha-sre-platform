@@ -1,4 +1,4 @@
-# Creates the internet-facing Network Load Balancer used as the PostgreSQL endpoint.
+# Creates the internal Network Load Balancer used as the stable PostgreSQL endpoint.
 resource "aws_lb" "postgres" {
   name               = "${var.name_prefix}-nlb"
   internal           = true

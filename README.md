@@ -20,6 +20,9 @@ The platform was provisioned with **Terraform**, configured with **Ansible over 
 - End-to-end troubleshooting
 - Cost-controlled deployment and complete Terraform teardown
 
+##
+![Project At A Glance](images/project-at-a-glance.png)
+
 ## Architecture
 
 The lab ran in **AWS eu-west-2** inside a dedicated **10.20.0.0/16 VPC**.
