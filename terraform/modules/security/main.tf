@@ -41,6 +41,18 @@ resource "aws_security_group" "nlb" {
   }
 }
 
+# Allows clients inside the VPC to connect to PostgreSQL through the internal NLB.
+resource "aws_vpc_security_group_ingress_rule" "nlb_postgres" {
+  security_group_id = aws_security_group.nlb.id
+  cidr_ipv4         = var.vpc_cidr
+
+  from_port   = 5432
+  to_port     = 5432
+  ip_protocol = "tcp"
+
+  description = "Allow PostgreSQL client traffic from within the VPC"
+}
+
 # Allows the Network Load Balancer to reach PostgreSQL and Patroni health endpoints.
 resource "aws_vpc_security_group_egress_rule" "nlb_postgres" {
   security_group_id = aws_security_group.nlb.id
